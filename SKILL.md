@@ -38,9 +38,12 @@ Mỗi truyện là 1 object trong JSON:
   "anh_local": "hinh-anh-ten-truyen/manh-len-tu-huyen-lenh-bat-dau.webp",
   "anh_url": "https://cdn.webnovel.vn/img/052026/manh-len-tu-huyen-lenh-bat-dau.webp?t=1777981236",
   "danh_muc": ["Tiên Hiệp", "Xuyên Không", "Huyền Huyễn", "Hệ Thống"],
-  "tac_gia": "Dã Hỏa Đông Vọng"
+  "tac_gia": "Dã Hỏa Đông Vọng",
+  "lo": "01"
 }
 ```
+
+> **`lo`** = nhãn lô truyện của đợt crawl (do `--lo` truyền vào). Dùng để `/content-webnovel` chỉ bốc truyện của lô đang active. 1 slug = 1 record; crawl lại slug cũ với `--lo` khác sẽ cập nhật `lo` sang lô mới.
 
 ## When to Use
 
@@ -53,15 +56,17 @@ Mỗi truyện là 1 object trong JSON:
 Chạy script Python (cross-platform). Có thể truyền URL trực tiếp hoặc qua file:
 
 ```bash
-# 1 hoặc nhiều URL trực tiếp
-python "<skill_dir>/scripts/crawl.py" "https://webnovel.vn/tien-nghich/" "https://webnovel.vn/pham-nhan-tu-tien/"
+# 1 hoặc nhiều URL trực tiếp (--lo BẮT BUỘC)
+python "<skill_dir>/scripts/crawl.py" "https://webnovel.vn/tien-nghich/" "https://webnovel.vn/pham-nhan-tu-tien/" --lo 01
 
 # Nhiều URL từ file (mỗi dòng 1 URL)
-python "<skill_dir>/scripts/crawl.py" --file urls.txt
+python "<skill_dir>/scripts/crawl.py" --file urls.txt --lo 02
 
 # Đổi thư mục gốc (mặc định ~/Downloads/webnovel)
-python "<skill_dir>/scripts/crawl.py" --file urls.txt --out "/duong/dan/khac"
+python "<skill_dir>/scripts/crawl.py" --file urls.txt --lo 02 --out "/duong/dan/khac"
 ```
+
+> **`--lo <nhãn>` bắt buộc** — gắn nhãn lô cho mọi truyện crawl trong lần chạy đó (vd `01`, `02`, `2026-08`). Thiếu `--lo` script dừng và báo lỗi, KHÔNG tự đoán. Dữ liệu lô cũ trong JSON không bị đụng; chỉ record cùng slug được cập nhật `lo` mới.
 
 `<skill_dir>`:
 - Windows: `C:\Users\Admin\.claude\skills\crawl-data-webnovel`
@@ -112,6 +117,7 @@ Skill `/content-webnovel` đọc file này để chọn đúng truyện theo th�
 
 ## Rules
 
+- **`--lo` bắt buộc** — thiếu thì dừng, không đoán nhãn lô. Mọi record crawl trong lần chạy được gắn `lo` đó.
 - Chỉ cào webnovel.vn. URL không thuộc site này → slug rỗng, bỏ qua.
 - **Không bịa** danh mục/tên truyện — chỉ lấy từ HTML thật. Trang không bóc được ảnh bìa thì SKIP (coi như trang danh mục).
 - Giữ nguyên tiếng Việt có dấu trong JSON (UTF-8).

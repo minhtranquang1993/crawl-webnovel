@@ -122,11 +122,17 @@ def main():
     ap.add_argument("urls", nargs="*", help="URL truyện webnovel.vn")
     ap.add_argument("--file", help="File chứa danh sách URL (mỗi dòng 1 URL)")
     ap.add_argument("--out", help="Thư mục gốc (mặc định ~/Downloads/webnovel)")
+    ap.add_argument("--lo", help="Nhãn lô truyện gắn vào mỗi record (vd 01, 2026-08)")
     args = ap.parse_args()
 
     urls = read_urls(args)
     if not urls:
         print("Chưa có URL. Truyền URL trực tiếp hoặc --file urls.txt", file=sys.stderr)
+        sys.exit(2)
+
+    lo = (args.lo or "").strip()
+    if not lo:
+        print("Thiếu --lo. Truyền nhãn lô, vd: --lo 01", file=sys.stderr)
         sys.exit(2)
 
     root = Path(args.out) if args.out else (downloads_dir() / "webnovel")
@@ -195,6 +201,7 @@ def main():
             "anh_local": "%s/%s" % (IMG_SUBDIR, local) if local else "",
             "anh_url": info["image"],
             "danh_muc": info["genres"],
+            "lo": lo,
         }
 
         author_tag = info["author"] or "?"
