@@ -1,15 +1,15 @@
 ---
-name: crawl-data-webnovel
+name: crawl-webnovel
 description: >-
   Cào dữ liệu truyện từ webnovel.vn: vào từng URL truyện, tải ảnh bìa (đặt tên theo slug URL),
   lấy tên truyện + danh mục (thể loại), rồi gom/merge vào file truyen-data.json.
   Tự tìm thư mục Downloads của máy đang chạy (cross-platform Windows/macOS/Linux) — để ở máy nào thì lưu vào Downloads máy đó.
-  Trigger: "/crawl-data-webnovel", "crawl webnovel", "cào data webnovel", "cào ảnh + danh mục webnovel",
+  Trigger: "/crawl-webnovel", "crawl webnovel", "cào data webnovel", "cào ảnh + danh mục webnovel",
   hoặc khi user gửi danh sách URL webnovel.vn kèm yêu cầu tải ảnh + lấy thể loại + ghi JSON.
 argument-hint: "<url> [<url> ...] | --file urls.txt"
 ---
 
-# /crawl-data-webnovel — Cào ảnh + danh mục truyện Webnovel.vn
+# /crawl-webnovel — Cào ảnh + danh mục truyện Webnovel.vn
 
 Tự động cào dữ liệu từ [webnovel.vn](https://webnovel.vn/): mỗi URL truyện → tải **ảnh bìa** + lấy **tên truyện** + **danh mục** → ghi vào **1 file JSON**.
 
@@ -69,8 +69,8 @@ python "<skill_dir>/scripts/crawl.py" --file urls.txt --lo 02 --out "/duong/dan/
 > **`--lo <nhãn>` bắt buộc** — gắn nhãn lô cho mọi truyện crawl trong lần chạy đó (vd `01`, `02`, `2026-08`). Thiếu `--lo` script dừng và báo lỗi, KHÔNG tự đoán. Dữ liệu lô cũ trong JSON không bị đụng; chỉ record cùng slug được cập nhật `lo` mới.
 
 `<skill_dir>`:
-- Windows: `C:\Users\Admin\.claude\skills\crawl-data-webnovel`
-- macOS: `~/.claude/skills/crawl-data-webnovel`
+- macOS: `~/.claude/skills/crawl-webnovel`
+- Windows: `%USERPROFILE%\.commandcode\skills\crawl-webnovel`
 
 > **Windows:** nếu console báo lỗi in tiếng Việt (`UnicodeEncodeError`), đặt `PYTHONIOENCODING=utf-8` trước lệnh. File JSON vẫn luôn ghi đúng UTF-8 dù console không in được.
 
@@ -107,10 +107,12 @@ Trạng thái mỗi dòng:
 
 ## Đồng bộ sang skill content-webnovel
 
-Sau khi ghi `~/Downloads/webnovel/truyen-data.json`, script **tự copy 1 bản** sang:
+Sau khi ghi `~/Downloads/webnovel/truyen-data.json`, script **tự copy 1 bản** sang mọi nơi skill content-webnovel được cài (bỏ qua nơi chưa cài):
 
 ```
+~/.commandcode/skills/content-webnovel/data/truyen-data.json
 ~/.claude/skills/content-webnovel/data/truyen-data.json
+~/.gemini/antigravity/skills/content-webnovel/data/truyen-data.json
 ```
 
 Skill `/content-webnovel` đọc file này để chọn đúng truyện theo thể loại khi viết `pbn toplist` và lấy `slug` ghép URL ảnh PBN. Chạy crawl xong là content-webnovel có data mới ngay — không cần sync tay. Nếu copy fail (thư mục skill không tồn tại), script in `WARN` nhưng vẫn giữ bản Downloads.

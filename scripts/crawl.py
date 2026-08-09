@@ -30,8 +30,13 @@ IMG_SUBDIR = "hinh-anh-ten-truyen"
 JSON_NAME = "truyen-data.json"
 
 # Bản JSON dùng chung với skill content-webnovel (đọc để chọn đúng thể loại toplist).
-# Cross-platform: ~/.claude/skills/content-webnovel/data/truyen-data.json
-SKILL_JSON_DIR = Path.home() / ".claude" / "skills" / "content-webnovel" / "data"
+# Cross-platform: sync sang mọi nơi skill content-webnovel được cài
+# (Command Code / Claude Code / Antigravity) — bỏ qua nơi chưa cài.
+SKILL_JSON_DIRS = [
+    Path.home() / ".commandcode" / "skills" / "content-webnovel" / "data",
+    Path.home() / ".claude" / "skills" / "content-webnovel" / "data",
+    Path.home() / ".gemini" / "antigravity" / "skills" / "content-webnovel" / "data",
+]
 
 
 def downloads_dir() -> Path:
@@ -222,13 +227,15 @@ def main():
     json_path.write_text(payload, encoding="utf-8")
 
     # Đồng bộ sang skill content-webnovel (để toplist chọn đúng thể loại)
-    try:
-        SKILL_JSON_DIR.mkdir(parents=True, exist_ok=True)
-        skill_json = SKILL_JSON_DIR / JSON_NAME
-        skill_json.write_text(payload, encoding="utf-8")
-        print("Sync skill : %s" % skill_json)
-    except Exception as e:
-        print("WARN: không copy được sang skill content-webnovel: %s" % e)
+    for skill_dir in SKILL_JSON_DIRS:
+        if not skill_dir.parent.is_dir():
+            continue
+        try:
+            skill_json = skill_dir / JSON_NAME
+            skill_json.write_text(payload, encoding="utf-8")
+            print("Sync skill : %s" % skill_json)
+        except Exception as e:
+            print("WARN: không copy được sang %s: %s" % (skill_dir, e))
 
     print("-" * 60)
     print("XONG: %d truyện trong JSON | mới %d, cập nhật %d | bỏ qua %d, lỗi %d"
