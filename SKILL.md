@@ -6,7 +6,7 @@ description: >-
   Tự tìm thư mục Downloads của máy đang chạy (cross-platform Windows/macOS/Linux) — để ở máy nào thì lưu vào Downloads máy đó.
   Trigger: "/crawl-webnovel", "crawl webnovel", "cào data webnovel", "cào ảnh + danh mục webnovel",
   hoặc khi user gửi danh sách URL webnovel.vn kèm yêu cầu tải ảnh + lấy thể loại + ghi JSON.
-argument-hint: "<url> [<url> ...] | --file urls.txt"
+argument-hint: "<url> [<url> ...] --lo <nhan> | --file urls.txt --lo <nhan> | --huongdan"
 ---
 
 # /crawl-webnovel — Cào ảnh + danh mục truyện Webnovel.vn
@@ -44,6 +44,43 @@ Mỗi truyện là 1 object trong JSON:
 ```
 
 > **`lo`** = nhãn lô truyện của đợt crawl (do `--lo` truyền vào). Dùng để `/content-webnovel` chỉ bốc truyện của lô đang active. 1 slug = 1 record; crawl lại slug cũ với `--lo` khác sẽ cập nhật `lo` sang lô mới.
+
+## `--huongdan` — Cheat sheet (in ra rồi DỪNG)
+
+**Trigger:** lệnh chứa `--huongdan`, `--help`, `-h`, `huongdan`, `hướng dẫn` (vd `/crawl-webnovel --huongdan`).
+**Hành vi:** in nguyên khối 📌 dưới đây ra chat rồi **DỪNG** — không fetch trang, không tải ảnh, không ghi JSON, không đòi `--lo`. Cờ này loại trừ mọi URL/flag khác trong lệnh.
+
+### 📌 /crawl-webnovel — Cào ảnh bìa + danh mục truyện Webnovel.vn
+
+**Làm gì:** mỗi URL truyện → tải ảnh bìa (tên file = slug) + lấy tên truyện, tác giả, danh mục → merge vào `truyen-data.json`, rồi tự copy JSON sang mọi nơi cài `content-webnovel`.
+
+**Cú pháp**
+```
+/crawl-webnovel <url> [<url> …] --lo <nhãn> [--out <đường/dẫn>]
+/crawl-webnovel --file urls.txt --lo <nhãn>
+```
+
+| Tham số | Bắt buộc | Mặc định | Ý nghĩa |
+|---|---|---|---|
+| URL / `--file` | ✅ | — | 1+ URL truyện, hoặc file mỗi dòng 1 URL |
+| `--lo <nhãn>` | ✅ | — | Nhãn lô cho lần crawl này (`01`, `02`, `2026-08`). **Thiếu là dừng, không đoán** |
+| `--out` | ❌ | `~/Downloads/webnovel` | Đổi thư mục gốc lưu |
+
+**Ví dụ**
+1. `/crawl-webnovel https://webnovel.vn/tien-nghich/ --lo 01`
+2. `/crawl-webnovel https://webnovel.vn/a/ https://webnovel.vn/b/ --lo 01`
+3. `/crawl-webnovel --file urls.txt --lo 02`
+4. `/crawl-webnovel --file urls.txt --lo 02 --out "/Users/minhtqm1993/Desktop/wn"`
+
+**Output:** `<Downloads>/webnovel/hinh-anh-ten-truyen/*.webp` + `<Downloads>/webnovel/truyen-data.json`.
+Trạng thái từng dòng: `IMG` tải mới · `HAVE` ảnh đã có · `-> mới` / `-> cập nhật` · `SKIP` trang danh mục · `FAIL` lỗi.
+
+**Lưu ý**
+- Chạy lại an toàn: ảnh có rồi không tải lại, slug trùng thì cập nhật chứ không tạo bản ghi trùng.
+- Chỉ cào webnovel.vn; trang danh mục/thể loại không có `og:image` → tự SKIP.
+- Windows lỗi in tiếng Việt → đặt `PYTHONIOENCODING=utf-8` trước lệnh; file JSON vẫn luôn UTF-8.
+
+---
 
 ## When to Use
 
